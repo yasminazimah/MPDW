@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ---
 title: "Tugas Pertemuan 1"
 author: "Yasmin Azimah"
@@ -8,7 +7,6 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
 
 ```{r}
 library("forecast")
@@ -93,8 +91,6 @@ ggplot() +
 
 Ide dasar dari Single Moving Average (SMA) adalah data suatu periode dipengaruhi oleh data periode sebelumnya. Metode pemulusan ini cocok digunakan untuk pola data stasioner atau konstan. Data pemulusan pada periode ke-t merupakan rata rata dari m buah data pada periode ke-t hingga periode ke (t-m+1). Data pemulusan pada periode ke-t selanjutnya digunakan sebagai nilai peramalan pada periode ke t+1
 
-Pemulusan menggunakan metode SMA dilakukan dengan fungsi `SMA()`.
-
 ```{r}
 data.sma<-SMA(training.ts)
 data.sma
@@ -138,8 +134,6 @@ row.names(akurasi_train.sma)<- c("SSE", "MSE", "MAPE")
 colnames(akurasi_train.sma) <- c("Akurasi m = 11")
 akurasi_train.sma
 ```
-Dalam hal ini nilai MAPE data latih pada metode pemulusan SMA kurang dari 2%, nilai ini dapat dikategorikan sebagai nilai akurasi yang sangat baik. 
-
 ```{r}
 #Menghitung nilai keakuratan data uji
 error_test.sma = testing.ts-data.gab[127:157,3]
@@ -152,8 +146,6 @@ row.names(akurasi_test.sma)<- c("SSE", "MSE", "MAPE")
 colnames(akurasi_test.sma) <- c("Akurasi m = 11")
 akurasi_test.sma
 ```
-
-Perhitungan akurasi menggunakan data latih menghasilkan nilai MAPE yang kurang dari 10% sehingga nilai akurasi ini dapat dikategorikan sebagai sangat baik.
 
 ## Single Exponential Smoothing
 Single Exponential Smoothing merupakan metode pemulusan yang tepat digunakan untuk data dengan pola stasioner atau konstan.
@@ -241,8 +233,5 @@ Berdasarkan nilai SSE, MSE, RMSE, dan MAPE di antara kedua parameter, nilai para
 
 ```{r}
 accuracy(ramalanopt,testing$Yt)
-=======
-```{r}
-x<-123
->>>>>>> ba1a2bd525b9ab24cc1fc9441166dd66de797129
+
 ```
