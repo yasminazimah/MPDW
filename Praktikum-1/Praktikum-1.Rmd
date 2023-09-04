@@ -193,4 +193,9 @@ akurasi
 accuracy(ramalan,testing$Jumlah_Kematian)
 
 ```
-Pada metode pemulusan SMA dihasilkan nilai MAPE sebesar 11.24701 untuk data training dan 9.178951 untuk data testing. Sementara itu, pada metode pemulusan SES dihasilkan nilai MAPE sebesar 10.869323 untuk data training dan 9.617125 untuk data testing. Dapat disimpulkan bahwa pada data training, metode SES lebih baik dibandingkan dengan metode SMA, sedangkan pada data testing, metode sma lebih baik dibandingkan SES.
+Pada metode pemulusan SMA dihasilkan nilai MAPE sebesar 11.24701 untuk data
+training dan 9.178951 untuk data testing. Sementara itu, pada metode
+pemulusan SES dihasilkan nilai MAPE sebesar 10.869323 untuk data training
+dan 9.617125 untuk data testing. Dapat disimpulkan bahwa pada data
+training, metode SES lebih baik dibandingkan dengan metode SMA, sedangkan
+pada data testing, metode sma lebih baik dibandingkan SES.
