@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "Tugas Pertemuan 1"
 author: "Yasmin Azimah"
@@ -240,4 +241,8 @@ Berdasarkan nilai SSE, MSE, RMSE, dan MAPE di antara kedua parameter, nilai para
 
 ```{r}
 accuracy(ramalanopt,testing$Yt)
+=======
+```{r}
+x<-123
+>>>>>>> ba1a2bd525b9ab24cc1fc9441166dd66de797129
 ```
