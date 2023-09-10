@@ -31,7 +31,7 @@ View(data)
 summary(data)
 ```
 
-## Exploratory Analysis on Respose Variable (Harga)
+## Explorasi data
 ```{r}
 # Matriks korelasi
 m <- cor(data) 
@@ -46,7 +46,7 @@ corrplot(m, add=TRUE, method = 'number', type='upper', order='original',
          tl.pos = "lt", 
          tl.col = "black", col=colors)
 ```
-### Time Series Plot
+### Plot Time Series
 ```{r}
 #Membentuk objek time series
 data.ts <- ts(data$Bunker_fuels)
