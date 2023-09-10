@@ -238,6 +238,6 @@ akurasi
 Berdasarkan hasil tersebut dapat diketahui bahwa hasil penanganan autokorelasi dengan metode Cochrane-Orcutt dan Hildreth-Lu memiliki nilai SSE yang tidak jauh berbeda atau cenderung sama, sebesar $12149381.2$ pada metode Cochrane-Orcutt dan $12198946.5$ pada metode Hildreth-Lu. Nilai tersebut lebih baik dibandingkan model awal ketika autokorelasi masih terjadi, yaitu sebesar $44544987.7$.
 
 # Simpulan
-
+Autokorelasi yang terdapat pada data CO2 Emissions from Fossil Fuels di United Kingdom terjadi akibat adanya korelasi di antara unsur penyusunnya. Adanya autokorelasi menyebabkan model regresi kurang baik karena akan meingkatkan galatnya. Autokorelasi dapat dideteksi secara eksploratif melalui plot sisaan, ACF, dan PACF, serta dengan uji formal Durbin-Watson. Autokorelasi tersebut dapat ditangani dengan metode Cochrane-Orcutt dan Hildreth-Lu. Kedua metode menghasilkan nilai SSE yang tidak jauh berbeda, artinya keduanya baik untuk digunakan.
 
 
