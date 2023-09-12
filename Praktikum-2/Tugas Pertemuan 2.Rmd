@@ -15,7 +15,6 @@ library(orcutt) #untuk membuat model regresi Cochrane-Orcutt
 library(HoRM) #untuk membuat model regresi Hildreth-Lu
 library(graphics)
 library(TSA)
-library(rio)
 library(ggplot2)
 library(corrplot)
 library(RColorBrewer)
@@ -24,9 +23,8 @@ library(scales)
 ## Input Data
 Data yang digunakan adalah data CO2 Emissions from Fossil Fuels di United Kingdom pada tahun 1968-2014. Dengan peubah y yaitu jumlah Bunker fuels, kemudian x1 yaitu Tahun, x2 yaitu Total, dan X3 yaitu Emisi karbon per capita.
 ```{r}
-library(readxl)
-data <- read_excel("~/MPDW/Data2.xlsx", 
-    sheet = "Sheet2")
+library(rio)
+data <- import("https://raw.githubusercontent.com/yasminazimah/MPDW//main/Praktikum-2/Data.csv")
 View(data)
 summary(data)
 ```
