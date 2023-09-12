@@ -21,7 +21,7 @@ library(RColorBrewer)
 library(scales)
 ```
 ## Input Data
-Data yang digunakan adalah data CO2 Emissions from Fossil Fuels di United Kingdom pada tahun 1968-2014. Dengan peubah y yaitu jumlah Bunker fuels, kemudian x1 yaitu Tahun, x2 yaitu Total, dan X3 yaitu Emisi karbon per capita.
+Data yang digunakan adalah data CO2 Emissions from Fossil Fuels di United Kingdom pada tahun 1968-2014. Dengan peubah y yaitu jumlah Bunker fuels, kemudian x1 yaitu Tahun, x2 yaitu Emisi karbon per capita, dan X3 yaitu jumlah gas flaring yang dihasilkan.
 ```{r}
 library(rio)
 data <- import("https://raw.githubusercontent.com/yasminazimah/MPDW//main/Praktikum-2/data2.csv")
@@ -61,13 +61,13 @@ Plot time series di atas berpola tren.
 ```{r}
 #Pembuatan Model Regresi
 #model regresi
-model<- lm(Bunker_fuels~Year+Total+Per_Capita, data = data)
+model<- lm(Bunker_fuels~Year+Per_Capita+Gas_flaring, data = data)
 summary(model)
 ```
-$$y_i = -209200+100x1_t+0.6036x2_t-28270x3_t$$
+$$y_i = -596000+296.9x1_t+5010x2_t-0.4298x3_t$$
 Berdasarkan ringkasan model dapat diketahui bahwa hasil uji F memiliki *p-value* \< $\alpha$ (5%). Artinya, minimal terdapat satu variabel yang berpengaruh nyata terhadap model.
 
-Selanjutnya dapat dilihat juga nilai $R^2=0.8761$. Artinya, sebesar 87.61% keragaman jumlah Bunkel fuels dapat dijelaskan oleh peubah Tahun, Total, dan Per capita. Hasil ini menunjukkan hasil yang bagus, seolah mendapatkan hasil terbaik. Namun, kita perlu melakukan uji terhadap sisaannya seperti berikut ini.
+Selanjutnya dapat dilihat juga nilai $R^2=0.8057$. Artinya, sebesar 80.57% keragaman jumlah Bunkel fuels dapat dijelaskan oleh peubah Tahun, Per capita, san Gas flaring. Hasil ini menunjukkan hasil yang bagus, seolah mendapatkan hasil terbaik. Namun, kita perlu melakukan uji terhadap sisaannya seperti berikut ini.
 
 ```{r}
 #sisaan dan fitted value
@@ -89,7 +89,7 @@ plot(seq(1,47,1), sisaan, col = "steelblue", pch = 20, xlab = "Sisaan", ylab = "
 lines(seq(1,47,1), sisaan, col = "red")
 abline(a = 0, b = 0, lwd = 2)
 ```
-Normal Q-Q Plot dan histogram menunjukkan bahwa sisaan cenderung menyebar normal. Plot Sisaan vs Fitted Value dan plot antara sisaan vs order menunjukkan adanya autokorelasi karena terdapat pola antar sisaan. 
+Normal Q-Q Plot yang dihasilkan menunjukkan bahwa sisaan cenderung menyebar normal. Plot Sisaan vs Fitted Value dan plot antara sisaan vs order menunjukkan adanya autokorelasi karena terdapat pola antar sisaan. 
 
 ## Uji Formal Normality Test
 ```{r}
@@ -113,7 +113,7 @@ Berdasarkan plot ACF dan PACF, terlihat bahwa garis melewati batas selang berwar
 #H1: ada autokorelasi
 dwtest(model)
 ```
-Berdasarkan hasil Durbin-Watson Test, didapatkan nilai p-value = $9.301e-08$ < alpha 5%, artinya terjadi autokorelasi. Didapatkan juga nilai $DW = 0.77664$. Berdasarkan tabel Durbin-Watson diperoleh nilai $DL = 1.3989$ dan $DU = 1.6692$. Nilai DW berada di antara nilai 0 dan DL. Artinya, terjadi autokorelasi positif.
+Berdasarkan hasil Durbin-Watson Test, didapatkan nilai p-value = $2.2e-16$ < alpha 5%, artinya terjadi autokorelasi. Didapatkan juga nilai $DW = 0.29539$. Berdasarkan tabel Durbin-Watson dengan k=3 dan jumlah data 47, diperoleh nilai $DL = 1.3989$ dan $DU = 1.6692$. Nilai DW berada di antara nilai 0 dan DL. Artinya, terjadi autokorelasi positif.
 
 ## Penanganan Autokorelasi
 ### Metode Cochrane-Orcutt
@@ -123,9 +123,9 @@ modelCO<-cochrane.orcutt(model)
 modelCO
 dwtest(modelCO)
 ```
-Model menggunakan Cochrane-Orcutt $$y_i=-712488.3+359.9657x1_t-0.2399670x2_t-14781.11x3_t$$.
+Model menggunakan Cochrane-Orcutt $$y_i=-458639.7+232.7415x1_t+823.1627x2_t+0.001507x3_t$$.
 
-Nilai DW setelah dilakukan penanganan meningkat menjadi $DW = 1.85127$. Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.6692 < DW < 2.3308$, maka sudah tidak ada autokorelasi positif. Hal tersebut juga didukung oleh *p-value* sebesar $0.2534$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
+Nilai DW setelah dilakukan penanganan meningkat menjadi $DW = 1.9548$. Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.6692 < DW < 2.3308$, maka sudah tidak ada autokorelasi. Hal tersebut juga didukung oleh *p-value* sebesar $0.3815$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
 
 ```{r}
 #Rho optimum
@@ -136,12 +136,11 @@ rho
 ```{r}
 #Transformasi Manual
 Year.trans<- data$Year[-1]-data$Year[-47]*rho
-Total.trans<- data$Total[-1]-data$Total[-47]*rho
 Bunker_fuels.trans<- data$Bunker_fuels[-1]-data$Bunker_fuels[-47]*rho
 Per_Capita.trans<- data$Per_Capita[-1]-data$Per_Capita[-47]*rho
+Gas_flaring.trans<- data$Gas_flaring[-1]-data$Gas_flaring[-47]*rho
 
-
-modelCOmanual<- lm(Bunker_fuels.trans~Year.trans+Total.trans+Per_Capita.trans)
+modelCOmanual<- lm(Bunker_fuels.trans~Year.trans+Per_Capita.trans+Gas_flaring.trans)
 summary(modelCOmanual)
 ```
 Hasil model transformasi bukan merupakan model sesungguhnya. Koefisien regresi masih perlu dicari kembali mengikuti $β_0^*=β_0+ρ ̂β_0$ dan $β_1^*=β_1$.
@@ -187,7 +186,7 @@ Pertama-tama akan dicari di mana kira-kira $ρ$ yang menghasilkan SSE minimum. P
 
 ```{r}
 #Rho optimal di sekitar 0.9
-rOpt <- seq(0.8,0.92, by= 0.001)
+rOpt <- seq(0.8,0.9, by= 0.001)
 tabOpt <- data.frame("rho" = rOpt, "SSE" = sapply(rOpt, function(i){deviance(hildreth.lu.func(i, model))}))
 head(tabOpt[order(tabOpt$SSE),])
 
@@ -195,7 +194,7 @@ head(tabOpt[order(tabOpt$SSE),])
 par(mfrow = c(1,1))
 plot(tab$SSE ~ tab$rho , type = "l", xlab = "Rho", ylab = "SSE")
 abline(v = tabOpt[tabOpt$SSE==min(tabOpt$SSE),"rho"], lty = 2, col="red",lwd=2)
-text(x=0.922, y=12198946.5, labels = "rho=0.922", cex = 0.8)
+text(x=0.9, y=12478591, labels = "rho=0.9", cex = 0.8)
 ```
 Perhitungan yang dilakukan aplikasi `R` menunjukkan bahwa nilai $ρ$ optimum, yaitu saat SSE terkecil terdapat pada nilai $ρ=0.900$. Hal tersebut juga ditunjukkan pada plot. Selanjutnya, model dapat didapatkan
 dengan mengevaluasi nilai $ρ$ ke dalam fungsi `hildreth.lu.func`, serta dilanjutkan dengan pengujian autokorelasi dengan uji Durbin-Watson. Namun, setelah pengecekan tersebut tidak lupa koefisien regresi tersebut digunakan untuk transformasi balik. Persamaan hasil transformasi itulah yang menjadi persamaan sesungguhnya.
@@ -208,14 +207,14 @@ summary(modelHL)
 #Transformasi Balik
 cat("y = ", coef(modelHL)[1]/(1-0.900), "+", coef(modelHL)[2],"x1","+", coef(modelHL)[3],"x2","+", coef(modelHL)[4],"x3", sep = "")
 ```
-Setelah dilakukan tranformasi balik, didapatkan model dengan metode Hildreth-Lu sebagai berikut. $$y_i=-663525.8+335.5404x1_t-0.2123179x2_t+13222.69x3_t$$
+Setelah dilakukan tranformasi balik, didapatkan model dengan metode Hildreth-Lu sebagai berikut. $$y_i=-456254.8+231.5577x1_t+845.1527x2_t+0.001243035x3_t$$
 
 ```{r}
 #Deteksi autokorelasi
 dwtest(modelHL)
 ```
-Hasil uji Durbin-Watson juga menunjukkan bahwa nilai DW meningkat menjadi $1.8317$.
-Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.3989 < DW < 2.3308$, maka sudah tidak ada autokorelasi positif. Hal tersebut juga didukung oleh *p-value* sebesar $0.2287$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
+Hasil uji Durbin-Watson juga menunjukkan bahwa nilai DW meningkat menjadi $1.9449$.
+Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.6692 < DW < 2.3308$, maka sudah tidak ada autokorelasi positif. Hal tersebut juga didukung oleh *p-value* sebesar $0.3683$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
 
 Terakhir, akan dibandingkan nilai SSE dari ketiga metode (metode awal,
 metode Cochrane-Orcutt, dan Hildreth-Lu).
@@ -233,7 +232,7 @@ colnames(akurasi) <- c("Model Awal", "Model Cochrane-Orcutt", "Model Hildreth-Lu
 row.names(akurasi) <- c("SSE","MSE")
 akurasi
 ```
-Berdasarkan hasil tersebut dapat diketahui bahwa hasil penanganan autokorelasi dengan metode Cochrane-Orcutt dan Hildreth-Lu memiliki nilai SSE yang tidak jauh berbeda atau cenderung sama, sebesar $12149381.2$ pada metode Cochrane-Orcutt dan $12198946.5$ pada metode Hildreth-Lu. Nilai tersebut lebih baik dibandingkan model awal ketika autokorelasi masih terjadi, yaitu sebesar $44544987.7$.
+Berdasarkan hasil tersebut dapat diketahui bahwa hasil penanganan autokorelasi dengan metode Cochrane-Orcutt dan Hildreth-Lu memiliki nilai SSE yang tidak jauh berbeda atau cenderung sama, sebesar $12474032.5$ pada metode Cochrane-Orcutt dan $12478592.4$ pada metode Hildreth-Lu. Nilai tersebut lebih baik dibandingkan model awal ketika autokorelasi masih terjadi, yaitu sebesar $69811722$.
 
 # Simpulan
 Autokorelasi yang terdapat pada data CO2 Emissions from Fossil Fuels di United Kingdom terjadi akibat adanya korelasi di antara unsur penyusunnya. Adanya autokorelasi menyebabkan model regresi kurang baik karena akan meingkatkan galatnya. Autokorelasi dapat dideteksi secara eksploratif melalui plot sisaan, ACF, dan PACF, serta dengan uji formal Durbin-Watson. Autokorelasi tersebut dapat ditangani dengan metode Cochrane-Orcutt dan Hildreth-Lu. Kedua metode menghasilkan nilai SSE yang tidak jauh berbeda, artinya keduanya baik untuk digunakan.
