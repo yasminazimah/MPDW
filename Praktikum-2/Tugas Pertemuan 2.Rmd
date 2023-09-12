@@ -24,7 +24,7 @@ library(scales)
 Data yang digunakan adalah data CO2 Emissions from Fossil Fuels di United Kingdom pada tahun 1968-2014. Dengan peubah y yaitu jumlah Bunker fuels, kemudian x1 yaitu Tahun, x2 yaitu Total, dan X3 yaitu Emisi karbon per capita.
 ```{r}
 library(rio)
-data <- import("https://raw.githubusercontent.com/yasminazimah/MPDW//main/Praktikum-2/Data.csv")
+data <- import("https://raw.githubusercontent.com/yasminazimah/MPDW//main/Praktikum-2/data2.csv")
 View(data)
 summary(data)
 ```
@@ -64,7 +64,7 @@ Plot time series di atas berpola tren.
 model<- lm(Bunker_fuels~Year+Total+Per_Capita, data = data)
 summary(model)
 ```
-$$y_i = -2.092e+e+05+1.000e+02+6.036e-01-2.827e+04$$
+$$y_i = -209200+100.0x1_t+0.6036x2_t-28270x3_t$$
 Berdasarkan ringkasan model dapat diketahui bahwa hasil uji F memiliki *p-value* \< $\alpha$ (5%). Artinya, minimal terdapat satu variabel yang berpengaruh nyata terhadap model.
 
 Selanjutnya dapat dilihat juga nilai $R^2=0.8761$. Artinya, sebesar 87.61% keragaman jumlah Bunkel fuels dapat dijelaskan oleh peubah Tahun, Total, dan Per capita. Hasil ini menunjukkan hasil yang bagus, seolah mendapatkan hasil terbaik. Namun, kita perlu melakukan uji terhadap sisaannya seperti berikut ini.
@@ -123,7 +123,7 @@ modelCO<-cochrane.orcutt(model)
 modelCO
 dwtest(modelCO)
 ```
-Model menggunakan Cochrane-Orcutt $$y_i=-7.124883e-05+3.599657e+02x1_t-2.399670e-01x2_t-1.478111e+04x3_t$$.
+Model menggunakan Cochrane-Orcutt $$y_i=-712488.3+359.9657x1_t-0.2399670x2_t-14781.11x3_t$$.
 
 Nilai DW setelah dilakukan penanganan meningkat menjadi $DW = 1.8513$. Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.3989 < DW < 2.3308$, maka sudah tidak ada autokorelasi positif. Hal tersebut juga didukung oleh *p-value* sebesar $0.2534$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
 
@@ -186,8 +186,8 @@ round(tab, 4)
 Pertama-tama akan dicari di mana kira-kira $ρ$ yang menghasilkan SSE minimum. Pada hasil di atas terlihat $ρ$ minimum ketika 0.9. Namun, hasil tersebut masih kurang teliti sehingga akan dicari kembali $ρ$ yang lebih optimum dengan ketelitian yang lebih. Jika sebelumnya jarak antar $ρ$ yang dicari adalah 0.1, kali ini jarak antar $ρ$ adalah 0.001 dan dilakukan pada selang 0.8 sampai dengan 0.9.
 
 ```{r}
-#Rho optimal di sekitar 0.4
-rOpt <- seq(0.8,0.9, by= 0.001)
+#Rho optimal di sekitar 0.9
+rOpt <- seq(0.8,0.92, by= 0.001)
 tabOpt <- data.frame("rho" = rOpt, "SSE" = sapply(rOpt, function(i){deviance(hildreth.lu.func(i, model))}))
 head(tabOpt[order(tabOpt$SSE),])
 
@@ -215,7 +215,7 @@ Setelah dilakukan tranformasi balik, didapatkan model dengan metode Hildreth-Lu 
 dwtest(modelHL)
 ```
 Hasil uji Durbin-Watson juga menunjukkan bahwa nilai DW meningkat menjadi $1.8317$.
-Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.3989 < DW < 2.3308$, maka sudah tidak ada autokorelasi positif. Hal tersebut juga didukung oleh *p-value* sebesar $0.2534$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
+Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.3989 < DW < 2.3308$, maka sudah tidak ada autokorelasi positif. Hal tersebut juga didukung oleh *p-value* sebesar $0.2287$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
 
 Terakhir, akan dibandingkan nilai SSE dari ketiga metode (metode awal,
 metode Cochrane-Orcutt, dan Hildreth-Lu).
