@@ -64,7 +64,7 @@ Plot time series di atas berpola tren.
 model<- lm(Bunker_fuels~Year+Total+Per_Capita, data = data)
 summary(model)
 ```
-$$y_i = -209200+100.0x1_t+0.6036x2_t-28270x3_t$$
+$$y_i = -209200+100x1_t+0.6036x2_t-28270x3_t$$
 Berdasarkan ringkasan model dapat diketahui bahwa hasil uji F memiliki *p-value* \< $\alpha$ (5%). Artinya, minimal terdapat satu variabel yang berpengaruh nyata terhadap model.
 
 Selanjutnya dapat dilihat juga nilai $R^2=0.8761$. Artinya, sebesar 87.61% keragaman jumlah Bunkel fuels dapat dijelaskan oleh peubah Tahun, Total, dan Per capita. Hasil ini menunjukkan hasil yang bagus, seolah mendapatkan hasil terbaik. Namun, kita perlu melakukan uji terhadap sisaannya seperti berikut ini.
@@ -125,7 +125,7 @@ dwtest(modelCO)
 ```
 Model menggunakan Cochrane-Orcutt $$y_i=-712488.3+359.9657x1_t-0.2399670x2_t-14781.11x3_t$$.
 
-Nilai DW setelah dilakukan penanganan meningkat menjadi $DW = 1.8513$. Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.3989 < DW < 2.3308$, maka sudah tidak ada autokorelasi positif. Hal tersebut juga didukung oleh *p-value* sebesar $0.2534$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
+Nilai DW setelah dilakukan penanganan meningkat menjadi $DW = 1.85127$. Nilai DW sudah berada pada rentang DU \< DW \< 4-DU atau $1.6692 < DW < 2.3308$, maka sudah tidak ada autokorelasi positif. Hal tersebut juga didukung oleh *p-value* sebesar $0.2534$, di mana *p-value* \> $\alpha$=5%. Artinya tak tolak $H_0$ atau belum cukup bukti menyatakan bahwa ada autokorelasi pada taraf nyata 5%.
 
 ```{r}
 #Rho optimum
