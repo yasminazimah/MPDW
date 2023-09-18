@@ -1,0 +1,191 @@
+---
+title: "Tugas Pertemuan 3"
+author: "Yasmin Azimah"
+date: "2023-09-16"
+output: html_document
+---
+## Library
+```{r}
+library(dLagM)
+library(dynlm)
+library(MLmetrics)
+library(lmtest)
+library(car)
+```
+
+## Importing Data
+```{r}
+data <- rio::import("https://raw.githubusercontent.com/yasminazimah/MPDW/main/Praktikum-3/Data.csv")
+Yt = data$AQI
+Xt = data$CO
+data <- data.frame(Yt,Xt)
+str(data)
+data
+```
+
+## Pembagian Data menjadi data training dan data testing
+```{r}
+train<-data[1:57,] # 80%
+test<-data[58:72,] # 20%
+```
+
+## Data time series
+```{r}
+train.ts<-ts(train)
+test.ts<-ts(test)
+data.ts<-ts(data)
+```
+
+# Model Koyck
+
+Model Koyck didasarkan pada asumsi bahwa semakin jauh jarak lag peubah independen dari periode sekarang maka semakin kecil pengaruh peubah lag terhadap peubah dependen.
+
+Koyck mengusulkan suatu metode untuk menduga model dinamis distributed lag dengan mengasumsikan bahwa semua koefisien $\beta$ mempunyai tanda sama.
+
+Model kyock merupakan jenis paling umum dari model infinite distributed lag dan juga dikenal sebagai geometric lag
+
+$$
+y_t=a(1-\lambda)+\beta_0X_t+\beta_1Z_t+\lambda Y_{t-1}+V_t
+$$
+dengan $$V_t=u_t-\lambda u_{t-1}$$
+
+### Pemodelan
+```{r}
+#Model koyck
+model.koyck <- dLagM :: koyckDlm(x=train$Xt , y=train$Yt)
+summary(model.koyck)
+AIC(model.koyck)
+BIC(model.koyck)
+```
+
+Dari hasil tersebut, didapat bahwa peubah $y_{t-1}$ memiliki nilai $P-Value<0.05$. Hal ini menunjukkan bahwa peubah $y_{t-1}$ berpengaruh signifikan terhadap $y$. Adapun model keseluruhannya adalah sebagai berikut
+
+$$
+\hat{Y_t}=2.8427209-0.0007616X_t+0.8979076Y_{t-1}
+$$
+### Peramalan dan Akurasi
+Berikut adalah hasil peramalan y untuk 15 periode kedepan menggunakan model koyck
+```{r}
+(fore.koyck <- forecast(model = model.koyck, x=test$Xt, h=15))
+
+#mape data testing
+mape.koyck <- MAPE(fore.koyck$forecasts, test$Yt)
+
+#akurasi data training
+mape_train <- dLagM::GoF(model.koyck)["MAPE"]
+
+c("MAPE_testing" = mape.koyck, "MAPE_training" = mape_train)
+```
+# Regression with Distributed Lag
+Fungsi `dlm()` akan menerapkan model lag terdistribusi dengan satu atau lebih prediktor. Nilai `x` dan `y` tidak perlu sebagai objek *time series* (`ts`). $q$ adalah integer yang mewakili panjang *lag* yang terbatas.
+
+## Penentuan lag optimum
+```{r}
+finiteDLMauto(formula = Yt ~ Xt,
+              data = data.frame(train),
+              model.type = "dlm", error.type = "AIC", trace = FALSE)
+```
+Berdasarkan output tersebut, lag optimum didapatkan ketika lag=10. Selanjutnya dilakukan pemodelan untuk lag=10
+
+## Model Distributed Lag
+```{r}
+model.dlm = dLagM::dlm(x = train$Xt,y = train$Yt , q = 10) 
+summary(model.dlm)
+AIC(model.dlm)
+BIC(model.dlm)
+```
+Dari hasil tersebut terdapat beberapa peubah yang berpengaruh signifikan terhadap taraf nyata 5% yaitu Intercept dan $x_t$. Adapun keseluruhan model yang terbentuk adalah
+
+$$
+\hat{Y_t}=-51.33432+0.44298X_t+.....+0.06903X_{t-10}
+$$
+
+Adapun hasil peramalan 15 periode kedepan menggunakan model tersebut adalah sebagai berikut
+
+```{r}
+#peramalan dan akurasi
+(fore.dlm <- forecast(model = model.dlm, x=test$Xt, h=15))
+
+#mape data testing
+mape.dlm <- MAPE(fore.dlm$forecasts, test$Yt)
+
+#akurasi data training
+mape_train <- dLagM::GoF(model.dlm)["MAPE"]
+
+c("MAPE_testing" = mape.dlm, "MAPE_training" = mape_train)
+```
+
+# Autoregressive
+
+Peubah dependen dipengaruhi oleh peubah independen pada waktu sekarang, serta dipengaruhi juga oleh peubah dependen itu sendiri pada satu waktu yang lalu maka model tersebut disebut *autoregressive* (Gujarati 2004)
+
+### Pemodelan
+Dengan $p$ adalah integer yang mewakili panjang *lag* yang terbatas dan $q$ adalah integer yang merepresentasikan ordo dari proses *autoregressive*.
+
+```{r}
+#Penentuan lag optimum
+optimum <- ardlBoundOrders(data = data.frame(data),ic = "AIC", formula = Yt ~ Xt )
+c(p=pqop$p$Xt, q=pqop$q)
+
+min_p=c()
+for(i in 1:15){
+  min_p[i]=min(optimum$Stat.table[[i]])
+}
+q_opt=which(min_p==min(min_p, na.rm = TRUE))
+p_opt=which(optimum$Stat.table[[q_opt]] == 
+              min(optimum$Stat.table[[q_opt]], na.rm = TRUE))
+data.frame("q_optimum" = q_opt, "p_optimum" = p_opt, 
+           "AIC"=optimum$min.Stat)
+```
+
+Dari tabel di atas, dapat terlihat bahwa nilai AIC terendah didapat ketika $p=15$ dan $q=6$, yaitu sebesar `121.7055`. Artinya, model autoregressive optimum didapat ketika $p=15$ dan $q=6$.
+
+```{r}
+#Model ARDL
+model.ardl = ardlDlm(x = train$Xt, y = train$Yt, p = 15 , q = 6)
+summary(model.ardl)
+AIC(model.ardl)
+BIC(model.ardl)
+```
+Berdasarkan model di atas, diperoleh nilai p-value $<0.05$ pada peubah $Y_{t-1}$. Artinya, peubah tersebut berpengaruh signifikan terhadap $y_t$. Model keseluruhannya adalah sebagai berikut:
+
+$$
+\hat{Y}=-31.48686+0.16013X_t+.....-0.05696Y_{t-6}
+$$
+Model ini cukup baik dengan nilai R-Square sebesar 92.18%.
+
+### Peramalan dan Akurasi
+```{r}
+(fore.ardl <- forecast(model = model.ardl, x=test$Xt, h=15))
+
+# mape akurasi testing
+mape.ardl <- MAPE(fore.ardl$forecasts, test$Yt) #data testing
+
+# mape akurasi data training
+mape_train <- GoF(model.ardl)["MAPE"]
+
+c("MAPE_testing" = mape.ardl, "MAPE_training" = mape_train)
+```
+## Perbandingan Model
+```{r}
+akurasi <- matrix(c(mape.koyck, mape.dlm, mape.ardl))
+row.names(akurasi)<- c("Koyck","DLM","Autoregressive")
+colnames(akurasi) <- c("MAPE")
+akurasi
+```
+Berdasarkan nilai MAPE, model paling optimum didapat pada Model autoregressive karena memiliki nilai MAPE terkecil.
+
+### Plot
+
+```{r}
+par(mfrow=c(1,1))
+plot(test$Xt, test$Yt, type="b", col="black")
+points(test$Xt, fore.koyck$forecasts,col="red")
+lines(test$Xt, fore.koyck$forecasts,col="red")
+points(test$Xt, fore.dlm$forecasts,col="blue")
+lines(test$Xt, fore.dlm$forecasts,col="blue")
+points(test$Xt, fore.ardl$forecasts,col="green")
+lines(test$Xt, fore.ardl$forecasts,col="green")
+legend("topleft",c("aktual", "koyck","DLM", "autoregressive"), lty=1, col=c("black","red","blue","green"), cex=0.8)
+```
+Berdasarkan plot tersebut, terlihat bahwa plot yang paling mendekati data aktualnya adalah Model autoregressive, sehingga dapat disimpulkan model terbaik dalam hal ini adalah model autoregressive.
