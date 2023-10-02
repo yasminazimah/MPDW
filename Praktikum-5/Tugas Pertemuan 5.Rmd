@@ -1,10 +1,11 @@
 ---
 title: "Tugas Pertemuan 5"
 author: "Yasmin Azimah"
+date: "2023-09-23"
 output:
   html_document: default
   pdf_document: default
-date: "2023-09-23"
+  word_document: default
 ---
 
 ```{r}
@@ -16,7 +17,7 @@ library(MASS)
 
 ### Input Data
 ```{r}
-data <- rio::import("https://raw.githubusercontent.com/yasminazimah/MPDW//main/data/Data1.csv")
+data <- rio::import("https://raw.githubusercontent.com/yasminazimah/MPDW/main/data/Data1.csv")
 data <- data$Jumlah_Kematian
 data.ts <- ts(data)
 ```
@@ -38,7 +39,7 @@ Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai
 acf(data.ts)
 ```
 
-Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off*.
+Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off* dan membentuk gelombang sinus yang menandakan data stasioner dalam rataan.
 
 ### Uji ADF
 
@@ -56,7 +57,7 @@ Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.1622 yang lebih besar 
 
 ```{r}
 index <- seq(1:157)
-bc = boxcox(data.ts~index, lambda = seq(0,4,by=0.01))
+bc = boxcox(data.ts~index, lambda = seq(-2,4,by=0.01))
 #Nilai Rounded Lambda
 lambda <- bc$x[which.max(bc$y)]
 lambda
@@ -64,7 +65,7 @@ lambda
 bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
 ```
 
-Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0,25** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0,00** dan batas atas **1,33**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0,25** dan pada selang kepercayaan 95% nilai memiliki batas bawah **-0,83** dan batas atas **1,33**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
 
 ### Partisi Data
 
@@ -94,7 +95,7 @@ Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai
 acf(dt_1)
 ```
 
-Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off*.
+Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off* dan membentuk gelombang sinus yang menandakan data stasioner dalam rataan.
 
 #### Uji ADF
 
@@ -125,7 +126,7 @@ Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **1
 #### Bagian 2
 
 ```{r}
-dt_2 <- stas[1:122] |> ts()
+dt_2 <- data.ts[64:157] |> ts()
 mean(dt_2)
 var(dt_2)
 ```
@@ -139,7 +140,7 @@ dt_2 |> as_tsibble() |>
   xlab("Obs") + ylab("Jumlah_Kematian")
 mean(dt_2)
 ```
-Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai dengan data yang menyebar di sekitar nilai tengahnya (17.94844) dan stasioner dalam ragam, ditandai dengan lebar pita yang cenderung sama.
+Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai dengan data yang menyebar di sekitar nilai tengahnya (70.25532) dan stasioner dalam ragam, ditandai dengan lebar pita yang cenderung sama.
 
 #### Plot ACF
 
@@ -147,7 +148,7 @@ Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai
 acf(dt_2)
 ```
 
-Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off* dan membentuk gelombang sinus.
+Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off* dan membentuk gelombang sinus yang menandakan data stasioner dalam rataan.
 
 #### Uji ADF
 
@@ -159,13 +160,13 @@ $H_0$ : Data tidak stasioner dalam rataan
 
 $H_1$ : Data stasioner dalam rataan
 
-Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang lebih kecil dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa data stasioner dalam rataan. Hal ini sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF.
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.4152 yang lebih besar dari taraf nyata 5% sehingga tak tolak $H_0$ dan menandakan bahwa data tidak stasioner dalam rataan. Hal ini tidak sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF.
 
 #### Plot Boxcox
 
 ```{r}
-index <- seq(1:122)
-bc = boxcox(dt_2~index, lambda = seq(0,6,by=1))
+index <- seq(64:157)
+bc = boxcox(dt_2~index, lambda = seq(-4,6,by=1))
 #Nilai Rounded Lambda
 lambda <- bc$x[which.max(bc$y)]
 lambda
@@ -173,5 +174,5 @@ lambda
 bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
 ```
 
-Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **2.30303** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0.00** dan batas atas **4.90909091**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **-0.3636364** dan pada selang kepercayaan 95% nilai memiliki batas bawah **-1.57575758** dan batas atas **0.94949495**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
 
